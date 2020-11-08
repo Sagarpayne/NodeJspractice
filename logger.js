@@ -1,9 +1,17 @@
+const EvenEmitter = require('events');
+
+
 var url="my Url";
 
-function log(message){
+class Logger extends EvenEmitter{
+
+    log(message){
 
 
-    console.log(message);
+        console.log(message);
+        this.emit('messageLogged');
+    }
 }
 
-module.exports.log =log;
+
+module.exports = Logger;
