@@ -1,0 +1,1 @@
+Lets try to serve static Content
