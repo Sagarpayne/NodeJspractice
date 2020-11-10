@@ -1,4 +1,4 @@
-const { boolean, func } = require('joi');
+const { boolean, func, equal } = require('joi');
 const mongoose = require('mongoose');
 
 mongoose.connect('mongodb://localhost:27017/playground')
@@ -29,13 +29,35 @@ async function createCourse(){
     console.log(result);
 }
 //createCourse()
+
+// eq (equal)
+// ne
+// gt
+// gte 
+// lt 
+// lte 
+// in 
+// nin 
+
+//.find(price:{$gte:10,$lte:20})
+//.find(price : {$in : [10,20,30]})
+
 async function getCourses(){
 
+    const pn =2;
+    const ps=1;
+
     const cs =await Course
-    .find({author:'max'})
-    .limit(2)
-    .sort({name:1})
-    .select({name:1});
+    //.find()
+    //.or([{author:'max'},{isPublished:true}])//.and([])
+    //.find({author :  /^s/i })
+
+    .find({author :  /.*a.*/i })
+    .skip((pn - 1)*ps)
+    .limit(ps)
+    .sort({name:-1})
+    .count()
+    // .select({name:1});
     console.log(cs);
 }
 
