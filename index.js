@@ -1,46 +1,44 @@
-const strtupdebugger =require('debug')('app:startup');
-const dbdebugger =require('debug')('app:db');
-const Joi = require('joi');
-const config = require('config');
-const helmet = require('helmet');
-const logger = require('./middleware/logger')
-const morgan = require('morgan');
-const express = require('express');
-const courses =require('./routes/courses');
-const home =require('./routes/home');
+const { boolean, func } = require('joi');
+const mongoose = require('mongoose');
 
-const app = express(); 
- 
-
-console.log(process.env.NODE_ENV);
-console.log(app.get('env'));
-
-app.set('view engine','pug');
-app.set('views','./views'); //default
-
-app.use(logger);
-app.use(express.json());  //req.body
-app.use(express.urlencoded({ extended: true }));  //key value pair
-app.use(express.static('public'));
-app.use(helmet());
+mongoose.connect('mongodb://localhost:27017/playground')
+    .then(() => console.log('Connected to MongoDb'))
+    .catch(err => console.log('Connected to Error', err));
 
 
+const courseSchema = new mongoose.Schema({
+    name: String,
+    author: String,
+    tags: [String],
+    date: { type: Date, default: Date.now },
+    isPublished: Boolean
 
-console.log('App Name : ' + config.get('name'));
-console.log('App Host mail : ' + config.get('mail.host'));
-console.log(app.get('env'));
-if (app.get('env') === 'development') {
-    console.log('dfsdfsd');
-    app.use(morgan('tiny'));
-    strtupdebugger('Moragan enabled..');
+});
+
+const Course = mongoose.model('Course', courseSchema);
+async function createCourse(){
+    const course = new Course({
+        name:'Java',
+        author:'max',
+        tags:['Java','max'],
+        isPublished:true
+    
+    });
+    const result = await course.save();
+
+    console.log(result);
+}
+//createCourse()
+async function getCourses(){
+
+    const cs =await Course
+    .find({author:'max'})
+    .limit(2)
+    .sort({name:1})
+    .select({name:1});
+    console.log(cs);
 }
 
-app.use(function (req, res, next) {
-    console.log('Auth ...');
-    next();
-});
-app.use('/api/courses',courses);
-app.use('/',home);
+getCourses();
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`Listening on port ${port}...`));
+
